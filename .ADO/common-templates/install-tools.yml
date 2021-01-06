@@ -15,6 +15,7 @@ steps:
       checkLatest: false # Optional
 
   - task: NuGetAuthenticate@0
+    displayName: Authenticate NuGet
 
   - task: PowerShell@2
     displayName: "Install Powershell Core"
