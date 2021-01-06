@@ -11,13 +11,13 @@ parameters:
 
 jobs:
   - job: GetLatestDocs
-    displayName: Microsoft Graph PowerShell SDK Download OpenApiDocs
+    displayName: Download OpenApiDocs
     pool: MsGraphDevXAzureAgents
     steps:
-      - template: ./checkout-step.yml
+      - template: ./checkout.yml
 
       - task: PowerShell@2
-        displayName: Download v1.0 OpenApiDocs
+        displayName: Download v1.0 OpenApi docs
         continueOnError: false
         enabled: true
         inputs:
@@ -25,7 +25,7 @@ jobs:
           pwsh: true
 
       - task: PowerShell@2
-        displayName: Download beta OpenApiDocs
+        displayName: Download beta OpenApi docs
         continueOnError: false
         enabled: false
         inputs:
@@ -35,7 +35,7 @@ jobs:
 
       - task: PowerShell@2
         name: OpenAPIDocDiff
-        displayName: "Get OpenAPI Diff"
+        displayName: Get OpenAPI diff
         inputs:
           pwsh: true
           targetType: "inline"
@@ -48,13 +48,15 @@ jobs:
                 $ModulesWithChanges.Add($matches.2, $matches.1)
               }
             }
+            # TEST DATA (PLS REMOVE ME!!)
             $ModulesWithChanges.Add("CloudCommunications", "CloudCommunications")
             $ModulesWithChanges.Add("Search", "Search")
             $ModuleNames = $ModulesWithChanges.Keys
             Write-Host "##vso[task.setvariable variable=ModulesWithChanges;isOutput=true]$ModuleNames"
 
       - task: PowerShell@2
-        displayName: "Generate Profiles"
+        displayName: Generate profiles
+        condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         enabled: false
         continueOnError: false
         inputs:
@@ -64,7 +66,8 @@ jobs:
 
       - task: PowerShell@2
         name: CalculateAndBumpServiceModuleVersion
-        displayName: "Calculate and bump service module version"
+        displayName: Calculate and bump service module version
+        condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         inputs:
           pwsh: true
           targetType: "inline"
@@ -75,24 +78,23 @@ jobs:
               $ModuleVersion = [System.Version]($Module.Version)
               $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
               # Bump minor version
-              . $(System.DefaultWorkingDirectory)/tools/SetModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
+              . $(System.DefaultWorkingDirectory)/tools/SetServiceModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
             }
 
       - task: PowerShell@2
         name: CalculateAndBumpMetaModuleVersion
-        displayName: "Calculate and bump service module version"
+        displayName: Calculate and bump meta-module version
+        condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         inputs:
           pwsh: true
           targetType: "inline"
           script: |
-            "$(OpenAPIDocDiff.ModulesWithChanges)" -split " " | ForEach-Object {
-              # Get PSGallery version
-              $Module = Find-Module "Microsoft.Graph.$_" -Repository PSGallery
-              $ModuleVersion = [System.Version]($Module.Version)
-              $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
-              # Bump minor version
-              . $(System.DefaultWorkingDirectory)/tools/SetModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
-            }
+            # Get PSGallery version
+            $Module = Find-Module "Microsoft.Graph" -Repository PSGallery
+            $ModuleVersion = [System.Version]($Module.Version)
+            $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
+            # Bump minor version
+            . $(System.DefaultWorkingDirectory)/tools/SetMetaModuleVersion.ps1 -VersionNumber $NewModuleVersion
 
       - task: Bash@3
         displayName: "Create weekly branch: $(Branch)"
@@ -107,7 +109,7 @@ jobs:
             git status
 
       - task: Bash@3
-        displayName: "Commit Downloaded Files"
+        displayName: "Commit downloaded files"
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)

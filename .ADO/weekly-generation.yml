@@ -11,24 +11,23 @@ variables:
 
 schedules:
   - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-    displayName: "Weekly SDK Generation"
+    displayName: "Weekly PS SDK generation"
     branches:
       include:
         - dev
     always: true
 
 stages:
-  # Run checkout stage.
   - stage: DownloadOpenAPIDocs
-    displayName: Download OpenAPI Docs
+    displayName: Download OpenAPI docs
     jobs:
-      - template: common-templates/download-openapi-docs-stage.yml
+      - template: common-templates/download-openapi-docs.yml
         parameters:
           Branch: $(Branch)
           BaseBranch: $(BaseBranch)
 
   - stage: GenerateServiceModules
-    displayName: Generate Service Modules
+    displayName: Generate service modules
     variables:
       ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
     jobs:
