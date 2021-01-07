@@ -75,10 +75,15 @@ if ($UpdateAutoRest) {
     & autorest --reset
 }
 
+Write-Host "Modules to generate count."
+Write-Host ($ModulesToGenerate.Count)
 if ($ModulesToGenerate.Count -eq 0) {
     [HashTable] $ModuleMapping = Get-Content $ModuleMappingConfigPath | ConvertFrom-Json -AsHashTable
     $ModulesToGenerate = $ModuleMapping.Keys
 }
+
+Write-Host "Modules to generate count 2."
+Write-Host ($ModulesToGenerate.Count)
 
 $ModulesToGenerate | ForEach-Object -ThrottleLimit $ModulesToGenerate.Count -Parallel {
     enum VersionState {
@@ -92,7 +97,7 @@ $ModulesToGenerate | ForEach-Object -ThrottleLimit $ModulesToGenerate.Count -Par
     $FullyQualifiedModuleName = "$using:ModulePrefix.$ModuleName"
     Write-Host -ForegroundColor Green "Generating '$FullyQualifiedModuleName' module..."
     $ModuleProjectDir = Join-Path $Using:ModulesOutputDir "$ModuleName\$ModuleName"
-
+return $true;
     # Copy AutoRest readme.md config is none exists.
     if (-not (Test-Path "$ModuleProjectDir\readme.md")) {
         New-Item -Path $ModuleProjectDir -Type Directory -Force
