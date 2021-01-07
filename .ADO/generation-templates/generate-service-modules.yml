@@ -32,7 +32,6 @@ jobs:
       - task: Bash@3
         displayName: "Switch branch to $(Branch)"
         condition: and(succeeded(), ne('${{ parameters.Branch }}', ''))
-        enabled: true
         inputs:
           targetType: inline
           script: |
@@ -129,7 +128,6 @@ jobs:
 
       - task: PowerShell@2
         displayName: Generate and build service modules
-        enabled: true
         inputs:
           targetType: inline
           pwsh: true

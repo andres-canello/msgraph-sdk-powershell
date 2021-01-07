@@ -19,7 +19,6 @@ jobs:
       - task: PowerShell@2
         displayName: Download v1.0 OpenApi docs
         continueOnError: false
-        enabled: true
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           pwsh: true
@@ -27,7 +26,6 @@ jobs:
       - task: PowerShell@2
         displayName: Download beta OpenApi docs
         continueOnError: false
-        enabled: false
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           arguments: "-BetaGraphVersion"
@@ -57,7 +55,6 @@ jobs:
       - task: PowerShell@2
         displayName: Generate profiles
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
-        enabled: false
         continueOnError: false
         inputs:
           targetType: filePath
