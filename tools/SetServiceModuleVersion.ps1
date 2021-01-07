@@ -23,4 +23,3 @@ $ModulesReadme | ForEach-Object {
     & $WriteToModuleReadMe -ReadMePath $_.FullName -FieldName "module-version" -NewFieldValue $VersionNumber
     & $WriteToModuleReadMe -ReadMePath $_.FullName -FieldName "release-notes" -NewFieldValue $ReleaseNotes
 }
-

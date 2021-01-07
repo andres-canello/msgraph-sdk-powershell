@@ -49,6 +49,7 @@ jobs:
             # TEST DATA (PLS REMOVE ME!!)
             $ModulesWithChanges.Add("CloudCommunications", "CloudCommunications")
             $ModulesWithChanges.Add("Search", "Search")
+            $ModulesWithChanges.Add("Test", "Test")
             $ModuleNames = $ModulesWithChanges.Keys
             Write-Host "##vso[task.setvariable variable=ModulesWithChanges;isOutput=true]$ModuleNames"
 
@@ -63,36 +64,37 @@ jobs:
           filePath: $(System.DefaultWorkingDirectory)/tools/GenerateProfiles.ps1
 
       - task: PowerShell@2
-        name: CalculateAndBumpServiceModuleVersion
-        displayName: Calculate and bump service module version
+        name: CalculateAndBumpModuleVersion
+        displayName: Calculate and bump module version
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         inputs:
           pwsh: true
           targetType: inline
           script: |
+            # Calculate meta-module version
+            $MetaModule = Find-Module "Microsoft.Graph" -Repository PSGallery
+            $MetaModuleVersion = [System.Version]($MetaModule.Version)
+            $NewMetaModuleVersion = "$($MetaModuleVersion.Major).$($MetaModuleVersion.Minor + 1).$($MetaModuleVersion.Build)"
+            # Bump meta-module minor version
+            . $(System.DefaultWorkingDirectory)/tools/SetMetaModuleVersion.ps1 -VersionNumber $NewMetaModuleVersion
+
+            # Calculate existing service module version
             "$(OpenAPIDocDiff.ModulesWithChanges)" -split " " | ForEach-Object {
-              # Get PSGallery version
-              $Module = Find-Module "Microsoft.Graph.$_" -Repository PSGallery
-              $ModuleVersion = [System.Version]($Module.Version)
-              $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
-              # Bump minor version
-              . $(System.DefaultWorkingDirectory)/tools/SetServiceModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
+              try {
+                $Module = Find-Module "Microsoft.Graph.$_" -Repository PSGallery -ErrorAction Stop
+                $ModuleVersion = [System.Version]($Module.Version)
+                $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
+                . $(System.DefaultWorkingDirectory)/tools/SetServiceModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
+              } catch {
+                if ($_.Exception.Message -like "No match*"){
+                  Write-Warning "Microsoft.Graph.$_ doesn't exists in PSGallery. Version will be set to $NewMetaModuleVersion."      
+                }
+              }
             }
 
-      - task: PowerShell@2
-        name: CalculateAndBumpMetaModuleVersion
-        displayName: Calculate and bump meta-module version
-        condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
-        inputs:
-          pwsh: true
-          targetType: inline
-          script: |
-            # Get PSGallery version
-            $Module = Find-Module "Microsoft.Graph" -Repository PSGallery
-            $ModuleVersion = [System.Version]($Module.Version)
-            $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
-            # Bump minor version
-            . $(System.DefaultWorkingDirectory)/tools/SetMetaModuleVersion.ps1 -VersionNumber $NewModuleVersion
+            # Calculate new service module version
+            $NewModuleReadMePath = Join-Path $(System.DefaultWorkingDirectory) "/tools/Templates/readme.md"
+            . $(System.DefaultWorkingDirectory)/tools/WriteToModuleReadMe.ps1 -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
 
       - task: Bash@3
         displayName: "Create weekly branch: $(Branch)"
