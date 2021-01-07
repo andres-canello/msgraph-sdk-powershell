@@ -22,6 +22,7 @@ jobs:
           targetType: inline
           script: |
             git status
+            git fetch --all
             git checkout $(BaseBranch)
             git clean -d -x -f
             git branch $(Branch)
