@@ -103,6 +103,7 @@ jobs:
           targetType: inline
           script: |
             git status
+            git clean -d -x -f
             git checkout $(BaseBranch)
             git branch $(Branch)
             git checkout $(Branch)
