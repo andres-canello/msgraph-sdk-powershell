@@ -16,6 +16,19 @@ jobs:
     steps:
       - template: ./checkout.yml
 
+      - task: Bash@3
+        displayName: "Create weekly branch: $(Branch)"
+        condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
+        inputs:
+          targetType: inline
+          script: |
+            git status
+            git checkout $(BaseBranch)
+            git clean -d -x -f
+            git branch $(Branch)
+            git checkout $(Branch)
+            git status
+
       - task: PowerShell@2
         displayName: Download v1.0 OpenApi docs
         continueOnError: false
@@ -49,7 +62,6 @@ jobs:
             # TEST DATA (PLS REMOVE ME!!)
             $ModulesWithChanges.Add("CloudCommunications", "CloudCommunications")
             $ModulesWithChanges.Add("Search", "Search")
-            $ModulesWithChanges.Add("Test", "Test")
             $ModuleNames = $ModulesWithChanges.Keys
             Write-Host "##vso[task.setvariable variable=ModulesWithChanges;isOutput=true]$ModuleNames"
 
@@ -87,7 +99,7 @@ jobs:
                 . $(System.DefaultWorkingDirectory)/tools/SetServiceModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
               } catch {
                 if ($_.Exception.Message -like "No match*"){
-                  Write-Warning "Microsoft.Graph.$_ doesn't exists in PSGallery. Version will be set to $NewMetaModuleVersion."      
+                  Write-Warning "$_. Version will be set to $NewMetaModuleVersion."      
                 }
               }
             }
@@ -95,19 +107,6 @@ jobs:
             # Calculate new service module version
             $NewModuleReadMePath = Join-Path $(System.DefaultWorkingDirectory) "/tools/Templates/readme.md"
             . $(System.DefaultWorkingDirectory)/tools/WriteToModuleReadMe.ps1 -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
-
-      - task: Bash@3
-        displayName: "Create weekly branch: $(Branch)"
-        condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
-        inputs:
-          targetType: inline
-          script: |
-            git status
-            git checkout $(BaseBranch)
-            git branch $(Branch)
-            git checkout $(Branch)
-            git clean -d -x -f
-            git status
 
       - task: Bash@3
         displayName: "Commit downloaded files"

@@ -75,15 +75,10 @@ if ($UpdateAutoRest) {
     & autorest --reset
 }
 
-Write-Host "Modules to generate count."
-Write-Host ($ModulesToGenerate.Count)
 if ($ModulesToGenerate.Count -eq 0) {
     [HashTable] $ModuleMapping = Get-Content $ModuleMappingConfigPath | ConvertFrom-Json -AsHashTable
     $ModulesToGenerate = $ModuleMapping.Keys
 }
-
-Write-Host "Modules to generate count 2."
-Write-Host ($ModulesToGenerate.Count)
 
 $ModulesToGenerate | ForEach-Object -ThrottleLimit $ModulesToGenerate.Count -Parallel {
     enum VersionState {

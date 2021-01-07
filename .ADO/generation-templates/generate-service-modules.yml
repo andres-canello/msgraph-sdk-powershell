@@ -43,7 +43,7 @@ jobs:
       # Consider making generate-auth-module a template with a collection of tasks instead to avoid rebuilding and signing auth module here.
       - task: PowerShell@2
         displayName: Build auth module
-        enabled: false
+        enabled: true
         inputs:
           targetType: inline
           pwsh: true
@@ -52,7 +52,7 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: ESRP DLL strong name (Auth Module)
-        enabled: false
+        enabled: true
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: $(AuthModulePath)
@@ -79,7 +79,7 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP DLL code sign (Auth Module)"
-        enabled: false
+        enabled: true
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: $(AuthModulePath)
