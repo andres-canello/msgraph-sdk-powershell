@@ -46,7 +46,7 @@ jobs:
 
       - task: PowerShell@2
         name: OpenAPIDocDiff
-        displayName: Get OpenAPI diff
+        displayName: Get OpenAPI docs diff
         inputs:
           pwsh: true
           targetType: "inline"
@@ -69,7 +69,6 @@ jobs:
         displayName: Generate profiles
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         continueOnError: false
-        enabled: false
         inputs:
           targetType: filePath
           pwsh: true
@@ -109,7 +108,7 @@ jobs:
             . $(System.DefaultWorkingDirectory)/tools/WriteToModuleReadMe.ps1 -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
 
       - task: Bash@3
-        displayName: "Commit downloaded files"
+        displayName: Commit downloaded files
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
