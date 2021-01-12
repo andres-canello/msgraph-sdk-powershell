@@ -21,9 +21,6 @@ jobs:
         inputs:
           targetType: inline
           script: |
-            git status
-            git fetch --all
-            git checkout $(BaseBranch)
             git branch $(Branch)
             git checkout $(Branch)
             git status
