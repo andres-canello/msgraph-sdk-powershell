@@ -24,7 +24,6 @@ jobs:
             git status
             git fetch --all
             git checkout $(BaseBranch)
-            git clean -d -x -f
             git branch $(Branch)
             git checkout $(Branch)
             git status

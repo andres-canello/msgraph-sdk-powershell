@@ -7,7 +7,7 @@ pool: MsGraphDevXAzureAgents
 variables:
   BranchDate: "$[format('{0:yyyyMMdd}', pipeline.startTime)]"
   Branch: "testweeklyOpenApiDocsDownload/$(BranchDate)"
-  BaseBranch: "po/WeeklyReleasePipeline"
+  BaseBranch: "dev"
 
 schedules:
   - cron: "0 12 * * WED" # Run every wednesday at noon UTC
