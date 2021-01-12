@@ -16,19 +16,6 @@ jobs:
     steps:
       - template: ./checkout.yml
 
-      - task: Bash@3
-        displayName: "Create weekly branch: $(Branch)"
-        inputs:
-          targetType: inline
-          script: |
-            git status
-            git fetch --all
-            git checkout $(BaseBranch)
-            git clean -d -x -f
-            git branch $(Branch)
-            git checkout $(Branch)
-            git status
-
       - task: PowerShell@2
         displayName: Download v1.0 OpenApi docs
         continueOnError: false
@@ -112,6 +99,18 @@ jobs:
             # Calculate new service module version
             $NewModuleReadMePath = Join-Path $(System.DefaultWorkingDirectory) "/tools/Templates/readme.md"
             . "$(System.DefaultWorkingDirectory)\tools\WriteToModuleReadMe.ps1" -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
+
+      - task: Bash@3
+        displayName: "Create weekly branch: $(Branch)"
+        inputs:
+          targetType: inline
+          script: |
+            git status
+            git fetch --all
+            git checkout $(BaseBranch)
+            git branch $(Branch)
+            git checkout $(Branch)
+            git status
 
       - task: Bash@3
         displayName: Commit downloaded files
