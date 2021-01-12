@@ -91,7 +91,8 @@ jobs:
             $NewMetaModuleVersion = "$($MetaModuleVersion.Major).$($MetaModuleVersion.Minor + 1).$($MetaModuleVersion.Build)"
             # Bump meta-module minor version
             Write-Host "Bumping Microsoft.Graph to $NewMetaModuleVersion."
-            #. $(System.DefaultWorkingDirectory)\tools\SetMetaModuleVersion.ps1 -VersionNumber $NewMetaModuleVersion
+            $SetMetaModuleVersionPS1 = (Join-Path "$(System.DefaultWorkingDirectory)" "\tools\SetMetaModuleVersion.ps1" -Resolve)
+            & $SetMetaModuleVersionPS1 -VersionNumber $NewMetaModuleVersion
 
             # Calculate existing service module version
             "$(OpenAPIDocDiff.ModulesWithChanges)" -split " " | ForEach-Object {
@@ -100,9 +101,9 @@ jobs:
                 $ModuleVersion = [System.Version]($Module.Version)
                 $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
                 Write-Host "Bumping $_ to $NewModuleVersion."
-                . $(System.DefaultWorkingDirectory)\tools\SetServiceModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
+                . "$(System.DefaultWorkingDirectory)\tools\SetServiceModuleVersion.ps1" -VersionNumber $NewModuleVersion -Modules $_
               } catch {
-                if ($_.Exception.Message -like "No match*"){
+                if ($_.Exception.Message -like "No match*") {
                   Write-Warning "$_. Version will be set to $NewMetaModuleVersion."      
                 }
               }
@@ -110,7 +111,7 @@ jobs:
 
             # Calculate new service module version
             $NewModuleReadMePath = Join-Path $(System.DefaultWorkingDirectory) "/tools/Templates/readme.md"
-            . $(System.DefaultWorkingDirectory)\tools\WriteToModuleReadMe.ps1 -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
+            . "$(System.DefaultWorkingDirectory)\tools\WriteToModuleReadMe.ps1" -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
 
       - task: Bash@3
         displayName: Commit downloaded files

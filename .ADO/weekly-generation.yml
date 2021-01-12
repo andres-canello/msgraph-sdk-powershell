@@ -26,15 +26,15 @@ stages:
           Branch: $(Branch)
           BaseBranch: $(BaseBranch)
 
-  - stage: GenerateServiceModules
-    displayName: Generate service modules
-    variables:
-      ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
-    jobs:
-      - template: generation-templates/generate-service-modules.yml
-        parameters:
-          Branch: $(Branch)
-          EnableSigning: true
+  # - stage: GenerateServiceModules
+  #   displayName: Generate service modules
+  #   variables:
+  #     ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
+  #   jobs:
+  #     - template: generation-templates/generate-service-modules.yml
+  #       parameters:
+  #         Branch: $(Branch)
+  #         EnableSigning: true
   # Git diff on download OpenAPI docs. Store changed modules in a variable.
   # Commit downloaded docs.
   # If modules change, bump their minor and meta-module version.
