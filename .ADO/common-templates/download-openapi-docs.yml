@@ -32,6 +32,7 @@ jobs:
       - task: PowerShell@2
         displayName: Download v1.0 OpenApi docs
         continueOnError: false
+        enabled: false
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           pwsh: true
@@ -90,6 +91,7 @@ jobs:
             $NewMetaModuleVersion = "$($MetaModuleVersion.Major).$($MetaModuleVersion.Minor + 1).$($MetaModuleVersion.Build)"
             # Bump meta-module minor version
             . $(System.DefaultWorkingDirectory)/tools/SetMetaModuleVersion.ps1 -VersionNumber $NewMetaModuleVersion
+            Write-Host "Bumping Microsoft.Graph to $NewMetaModuleVersion."
 
             # Calculate existing service module version
             "$(OpenAPIDocDiff.ModulesWithChanges)" -split " " | ForEach-Object {
@@ -98,6 +100,7 @@ jobs:
                 $ModuleVersion = [System.Version]($Module.Version)
                 $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
                 . $(System.DefaultWorkingDirectory)/tools/SetServiceModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
+                Write-Host "Bumping $_ to $NewModuleVersion."
               } catch {
                 if ($_.Exception.Message -like "No match*"){
                   Write-Warning "$_. Version will be set to $NewMetaModuleVersion."      
