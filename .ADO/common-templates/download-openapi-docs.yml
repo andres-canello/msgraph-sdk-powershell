@@ -70,6 +70,7 @@ jobs:
         displayName: Generate profiles
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         continueOnError: false
+        enabled: false
         inputs:
           targetType: filePath
           pwsh: true
