@@ -39,6 +39,7 @@ jobs:
       - task: PowerShell@2
         displayName: Download beta OpenApi docs
         continueOnError: false
+        enabled: false
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           arguments: "-BetaGraphVersion"
