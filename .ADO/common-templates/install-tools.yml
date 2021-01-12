@@ -61,7 +61,7 @@ steps:
       pwsh: true
       errorActionPreference: "continue"
       script: |
-        Install-Module "powershell-yaml" -Repository PSGallery
+        Install-Module "powershell-yaml" -Repository PSGallery -Force
 
   - task: PowerShell@2
     displayName: Register PS repository
