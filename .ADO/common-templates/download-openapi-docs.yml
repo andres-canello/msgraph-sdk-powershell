@@ -21,6 +21,10 @@ jobs:
         inputs:
           targetType: inline
           script: |
+            git status
+            git fetch --all
+            git checkout $(BaseBranch)
+            git clean -d -x -f
             git branch $(Branch)
             git checkout $(Branch)
             git status
@@ -86,24 +90,22 @@ jobs:
             $MetaModuleVersion = [System.Version]($MetaModule.Version)
             $NewMetaModuleVersion = "$($MetaModuleVersion.Major).$($MetaModuleVersion.Minor + 1).$($MetaModuleVersion.Build)"
             # Bump meta-module minor version
-            . $(System.DefaultWorkingDirectory)/tools/SetMetaModuleVersion.ps1 -VersionNumber $NewMetaModuleVersion
             Write-Host "Bumping Microsoft.Graph to $NewMetaModuleVersion."
-
+            . $(System.DefaultWorkingDirectory)/tools/SetMetaModuleVersion.ps1 -VersionNumber $NewMetaModuleVersion
             # Calculate existing service module version
             "$(OpenAPIDocDiff.ModulesWithChanges)" -split " " | ForEach-Object {
               try {
                 $Module = Find-Module "Microsoft.Graph.$_" -Repository PSGallery -ErrorAction Stop
                 $ModuleVersion = [System.Version]($Module.Version)
                 $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
-                . $(System.DefaultWorkingDirectory)/tools/SetServiceModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
                 Write-Host "Bumping $_ to $NewModuleVersion."
+                . $(System.DefaultWorkingDirectory)/tools/SetServiceModuleVersion.ps1 -VersionNumber $NewModuleVersion -Modules $_
               } catch {
                 if ($_.Exception.Message -like "No match*"){
                   Write-Warning "$_. Version will be set to $NewMetaModuleVersion."      
                 }
               }
             }
-
             # Calculate new service module version
             $NewModuleReadMePath = Join-Path $(System.DefaultWorkingDirectory) "/tools/Templates/readme.md"
             . $(System.DefaultWorkingDirectory)/tools/WriteToModuleReadMe.ps1 -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
