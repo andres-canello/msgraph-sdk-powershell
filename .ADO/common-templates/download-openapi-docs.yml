@@ -16,6 +16,8 @@ jobs:
     steps:
       - template: ./checkout.yml
 
+      - template: ./install-tools.yml
+
       - task: PowerShell@2
         displayName: Download v1.0 OpenApi docs
         continueOnError: false

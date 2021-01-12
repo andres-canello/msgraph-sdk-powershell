@@ -15,7 +15,7 @@ steps:
   #     version: 3.x
 
   - task: NuGetToolInstaller@1
-    displayName: "Install Nuget 5.7"
+    displayName: Install Nuget 5.7
     inputs:
       versionSpec: 5.7.0
       checkLatest: false # Optional
@@ -24,7 +24,7 @@ steps:
     displayName: Authenticate NuGet
 
   - task: PowerShell@2
-    displayName: "Install Powershell Core"
+    displayName: Install Powershell core
     enabled: false
     inputs:
       targetType: inline
@@ -33,7 +33,7 @@ steps:
         pwsh
 
   - task: PowerShell@2
-    displayName: "Version Check"
+    displayName: Version check
     inputs:
       targetType: inline
       pwsh: true
@@ -43,19 +43,29 @@ steps:
         Write-Host (Get-Host).Version
 
   - task: NodeTool@0
-    displayName: "Install NodeJs 14.11.0"
+    displayName: Install NodeJs 14.11.0
     inputs:
       versionSpec: "14.11.0"
       checkLatest: true # Optional
 
   - task: Npm@1
-    displayName: "Install AutoRest"
+    displayName: Install AutoRest
     inputs:
       command: "custom"
       customCommand: "install -g autorest@latest"
 
   - task: PowerShell@2
-    displayName: "Register PS Repository"
+    displayName: Install PowerShell build dependencies
+    enabled: false
+    inputs:
+      targetType: inline
+      pwsh: true
+      errorActionPreference: "continue"
+      script: |
+        Install-Module "powershell-yaml" -Repository PSGallery
+
+  - task: PowerShell@2
+    displayName: Register PS repository
     enabled: false
     inputs:
       targetType: inline
