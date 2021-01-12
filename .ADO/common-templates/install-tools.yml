@@ -3,10 +3,16 @@
 
 steps:
   - task: UseDotNet@2
-    displayName: "Use .NET Core SDK 3.x"
+    displayName: "Use .NET Core SDK 2.x"
     inputs:
       debugMode: false
-      version: 3.x
+      version: 2.x
+
+  # - task: UseDotNet@2
+  #   displayName: "Use .NET Core SDK 3.x"
+  #   inputs:
+  #     debugMode: false
+  #     version: 3.x
 
   - task: NuGetToolInstaller@1
     displayName: "Install Nuget 5.7"
