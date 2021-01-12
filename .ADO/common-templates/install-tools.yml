@@ -55,8 +55,7 @@ steps:
       customCommand: "install -g autorest@latest"
 
   - task: PowerShell@2
-    displayName: Install PowerShell build dependencies
-    enabled: false
+    displayName: Install PowerShell dependencies
     inputs:
       targetType: inline
       pwsh: true
