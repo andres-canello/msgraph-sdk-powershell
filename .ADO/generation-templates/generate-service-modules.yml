@@ -133,7 +133,6 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: ESRP DLL strong name (Service Modules)
-        enabled: false
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: $(ServiceModulePath)
@@ -160,7 +159,6 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP DLL code sign (Service Modules)"
-        enabled: false
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: $(ServiceModulePath)
@@ -208,7 +206,6 @@ jobs:
 
       - task: PowerShell@2
         displayName: Pack service modules
-        enabled: false
         inputs:
           targetType: inline
           pwsh: true
@@ -223,7 +220,6 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: ESRP NuGet code sign (Service Modules)
-        enabled: false
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: '$(Build.ArtifactStagingDirectory)\'
@@ -259,7 +255,6 @@ jobs:
 
       - task: PublishBuildArtifacts@1
         displayName: Publish service modules build artifacts
-        enabled: false
         inputs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/"
           ArtifactName: "drop"
