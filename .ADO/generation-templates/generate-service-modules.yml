@@ -4,19 +4,14 @@
 parameters:
   - name: AuthModulePath
     type: string
-    default: 'src\Authentication\Authentication\bin\'
   - name: AuthModuleDllPattern
     type: string
-    default: "Microsoft.Graph.Authentication.dll"
   - name: ServiceModulePath
     type: string
-    default: 'src\'
   - name: ModulePrefix
     type: string
-    default: "Microsoft.Graph"
   - name: Branch
     type: string
-    default: ""
   - name: EnableSigning
     type: boolean
     default: false
@@ -56,8 +51,8 @@ jobs:
         enabled: true
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
-          FolderPath: "$(AuthModulePath)"
-          Pattern: "$(AuthModuleDllPattern)"
+          FolderPath: $(AuthModulePath)
+          Pattern: $(AuthModuleDllPattern)
           signConfigType: inlineSignParams
           inlineOperation: |
             [
@@ -83,8 +78,8 @@ jobs:
         enabled: true
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
-          FolderPath: "$(AuthModulePath)"
-          Pattern: "$(AuthModuleDllPattern)"
+          FolderPath: $(AuthModulePath)
+          Pattern: $(AuthModuleDllPattern)
           signConfigType: inlineSignParams
           inlineOperation: |
             [
@@ -141,7 +136,7 @@ jobs:
         enabled: false
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
-          FolderPath: "$(ServiceModulePath)"
+          FolderPath: $(ServiceModulePath)
           Pattern: "$(ModulePrefix).*.private.dll"
           signConfigType: inlineSignParams
           inlineOperation: |

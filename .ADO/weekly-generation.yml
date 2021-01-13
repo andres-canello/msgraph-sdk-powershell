@@ -30,11 +30,19 @@ stages:
     displayName: Generate service modules
     variables:
       ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
+      AuthModulePath: "src/Authentication/Authentication/bin/"
+      AuthModuleDllPattern: "Microsoft.Graph.Authentication.dll"
+      ServiceModulePath: "src/"
+      ModulePrefix: "Microsoft.Graph"
     jobs:
       - template: generation-templates/generate-service-modules.yml
         parameters:
           Branch: $(Branch)
           EnableSigning: true
+          AuthModulePath: $(AuthModulePath)
+          AuthModuleDllPattern: $(AuthModuleDllPattern)
+          ServiceModulePath: $(ServiceModulePath)
+          ModulePrefix: $(ModulePrefix)
   # Git diff on download OpenAPI docs. Store changed modules in a variable.
   # Commit downloaded docs.
   # If modules change, bump their minor and meta-module version.
