@@ -5,8 +5,8 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 pool: MsGraphDevXAzureAgents
 
 variables:
-  BranchDate: "$[format('{0:yyyyMMddmmss}', pipeline.startTime)]"
-  Branch: "testweeklyOpenApiDocsDownload/$(BranchDate).$(Hours)$(Minutes)"
+  BranchDate: "$[format('{0:yyyyMMddHHmm}', pipeline.startTime)]"
+  Branch: "testweeklyOpenApiDocsDownload/$(BranchDate)"
   BaseBranch: "po/WeeklyReleasePipeline"
 
 schedules:
