@@ -11,11 +11,12 @@ variables:
 
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-  - cron: "55 17 * * *" # Test runs
+  - cron: "59 17 * * *" # Test runs
     displayName: "Weekly PS SDK generation"
     branches:
       include:
         - dev
+        - po/*
     always: true
 
 stages:
