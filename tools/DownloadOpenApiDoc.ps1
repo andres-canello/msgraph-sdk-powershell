@@ -51,7 +51,8 @@ while (-not $Completed) {
             }
         }
         elseif ($StatusCode -eq 404) {
-            Write-Warning "Request to $OpenApiServiceUrl returned 404. Its dowload will be skipped."
+            Write-Warning "Request to $OpenApiServiceUrl returned 404. Download will be skipped."
+            $Completed = $true
         }
         else {
             # Get Http error message from DevX Api, Re-throw error to be handled Upstream
