@@ -28,7 +28,7 @@ while (-not $Completed) {
     }
     catch {
         $StatusCode = $_.Exception.Response.StatusCode.value__
-        if ($StatusCode -eq 404 -or $StatusCode -eq 429 -or $StatusCode -eq 503 -or $StatusCode -eq 504) {
+        if ($StatusCode -eq 429 -or $StatusCode -eq 503 -or $StatusCode -eq 504) {
             if ($Retrycount -ge $Retries) {
                 Write-Warning "Request to $OpenApiServiceUrl failed the maximum number of $Retrycount times."
                 throw
@@ -49,6 +49,9 @@ while (-not $Completed) {
                 Start-Sleep $DelayInSeconds
                 $Retrycount++
             }
+        }
+        elseif ($StatusCode -eq 404) {
+            Write-Warning "Request to $OpenApiServiceUrl returned 404. Its dowload will be skipped."
         }
         else {
             # Get Http error message from DevX Api, Re-throw error to be handled Upstream
