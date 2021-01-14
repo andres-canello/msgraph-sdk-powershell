@@ -9,13 +9,13 @@ variables:
   Branch: "testweeklyOpenApiDocsDownload/$(BranchDate)"
   BaseBranch: "po/WeeklyReleasePipeline"
 
-schedules:
-  - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-    displayName: "Weekly PS SDK generation"
-    branches:
-      include:
-        - dev
-    always: true
+# schedules:
+#   - cron: "0 12 * * WED" # Run every wednesday at noon UTC
+#     displayName: "Weekly PS SDK generation"
+#     branches:
+#       include:
+#         - dev
+#     always: true
 
 stages:
   - stage: DownloadOpenAPIDocs

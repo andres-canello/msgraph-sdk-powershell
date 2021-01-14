@@ -21,7 +21,6 @@ jobs:
       - task: PowerShell@2
         displayName: Download v1.0 OpenApi docs
         continueOnError: false
-        enabled: false
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           pwsh: true
@@ -29,7 +28,6 @@ jobs:
       - task: PowerShell@2
         displayName: Download beta OpenApi docs
         continueOnError: false
-        enabled: false
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           arguments: "-BetaGraphVersion"
@@ -50,9 +48,6 @@ jobs:
                 $ModulesWithChanges.Add($matches.2, $matches.1)
               }
             }
-            # TEST DATA (PLS REMOVE ME!!)
-            $ModulesWithChanges.Add("CloudCommunications", "CloudCommunications")
-            $ModulesWithChanges.Add("Search", "Search")
             $ModuleNames = $ModulesWithChanges.Keys
             Write-Host "##vso[task.setvariable variable=ModulesWithChanges;isOutput=true]$ModuleNames"
 
@@ -60,7 +55,6 @@ jobs:
         displayName: Generate profiles
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         continueOnError: false
-        enabled: false
         inputs:
           targetType: filePath
           pwsh: true
@@ -81,7 +75,7 @@ jobs:
             # Bump meta-module minor version
             Write-Host "Bumping Microsoft.Graph to $NewMetaModuleVersion."
             # & "$(System.DefaultWorkingDirectory)\tools\SetMetaModuleVersion.ps1" -VersionNumber $NewMetaModuleVersion
-            & "$(System.DefaultWorkingDirectory)\tools\SetMetaModuleVersion.ps1" -VersionNumber "1.2.1"
+            & "$(System.DefaultWorkingDirectory)\tools\SetMetaModuleVersion.ps1" -VersionNumber "1.2.2"
 
             # Calculate existing service module version
             "$(OpenAPIDocDiff.ModulesWithChanges)" -split " " | ForEach-Object {
@@ -91,7 +85,7 @@ jobs:
                 $NewModuleVersion = "$($ModuleVersion.Major).$($ModuleVersion.Minor + 1).$($ModuleVersion.Build)"
                 Write-Host "Bumping $_ to $NewModuleVersion."
                 # . "$(System.DefaultWorkingDirectory)\tools\SetServiceModuleVersion.ps1" -VersionNumber $NewModuleVersion -Modules $_
-                . "$(System.DefaultWorkingDirectory)\tools\SetServiceModuleVersion.ps1" -VersionNumber "1.2.1" -Modules $_
+                . "$(System.DefaultWorkingDirectory)\tools\SetServiceModuleVersion.ps1" -VersionNumber "1.2.2" -Modules $_
               } catch {
                 if ($_.Exception.Message -like "No match*") {
                   Write-Warning "$_. Version will be set to $NewMetaModuleVersion."      
@@ -102,7 +96,7 @@ jobs:
             # Calculate new service module version
             $NewModuleReadMePath = Join-Path $(System.DefaultWorkingDirectory) "/tools/Templates/readme.md"
             # . "$(System.DefaultWorkingDirectory)\tools\WriteToModuleReadMe.ps1" -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
-            . "$(System.DefaultWorkingDirectory)\tools\WriteToModuleReadMe.ps1" -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue "1.2.1"
+            . "$(System.DefaultWorkingDirectory)\tools\WriteToModuleReadMe.ps1" -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue "1.2.2"
 
       - task: Bash@3
         displayName: "Create weekly branch: $(Branch)"
