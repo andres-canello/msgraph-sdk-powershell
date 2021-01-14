@@ -8,7 +8,8 @@ variables:
   BranchDate: "$[format('{0:yyyyMMddHHmm}', pipeline.startTime)]"
   Branch: "testweeklyOpenApiDocsDownload/$(BranchDate)"
   BaseBranch: "dev"
-
+trigger: none
+pr: none
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
   - cron: "20 18 * * *" # Test runs
