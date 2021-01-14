@@ -17,14 +17,44 @@ if ($ForceRefresh.IsPresent) {
     $OpenApiServiceUrl = "$OpenApiServiceUrl&forceRefresh=true"
 }
 Write-Host -ForegroundColor Green "[$RequestCount] Downloading OpenAPI doc for '$ModuleName' module: $OpenApiServiceUrl"
-try {
-    Invoke-WebRequest $OpenApiServiceUrl -OutFile "$OpenApiDocOutput\$ModuleName.yml"
-}
-catch {
-    # Get the Http Error Message from DevX Api, Rethrow Error to be handled Upstream
-    $ErrorMessage = $_.Exception.Message
-    Write-Host -ForegroundColor Red "[$RequestCount] Request Failed for $ModuleName Error Message: $ErrorMessage"
-    if ($GraphVersion -eq "beta") {
-        throw
+$Retries = 2
+$Delay = 3
+$Retrycount = 0
+$Completed = $false
+while (-not $Completed) {
+    try {
+        Invoke-WebRequest $OpenApiServiceUrl -OutFile "$OpenApiDocOutput\$ModuleName.yml"
+        $Completed = $true
+    }
+    catch {
+        $StatusCode = $_.Exception.Response.StatusCode.value__
+        if ($StatusCode -eq 404 -or $StatusCode -eq 429 -or $StatusCode -eq 503 -or $StatusCode -eq 504) {
+            if ($Retrycount -ge $Retries) {
+                Write-Warning "Request to $OpenApiServiceUrl failed the maximum number of $Retrycount times."
+                throw
+            }
+            else {
+                [ref]$RetryAfterHeader = $null
+                if ($_.Exception.Response.Headers.TryGetValues("Retry-After", $RetryAfterHeader)) {
+                    # Use Retry-After response header
+                    $DelayInSeconds = $RetryAfterHeader.Value
+                }
+                else {
+                    # Exponential backoff
+                    $mPow = [math]::Pow(2, $Retrycount)
+                    $DelayInSeconds = $mPow * $Delay
+                }
+
+                Write-Warning "Request to $OpenApiServiceUrl failed. Retrying in $DelayInSeconds seconds."
+                Start-Sleep $DelayInSeconds
+                $Retrycount++
+            }
+        }
+        else {
+            # Get Http error message from DevX Api, Re-throw error to be handled Upstream
+            $ErrorMessage = $_.Exception.Message
+            Write-Warning "[$RequestCount] Request for $ModuleName failed with error message: $ErrorMessage"
+            throw
+        }
     }
 }
