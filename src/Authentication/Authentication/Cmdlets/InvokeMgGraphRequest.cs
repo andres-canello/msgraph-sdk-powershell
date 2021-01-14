@@ -210,6 +210,15 @@ namespace Microsoft.Graph.PowerShell.Authentication.Cmdlets
         public string UserAgent { get; set; }
 
         /// <summary>
+        ///     OutputType to return to the caller, Defaults to HashTable
+        /// </summary>
+        [Parameter(Mandatory = false,
+            Position = 19,
+            ParameterSetName = Constants.UserParameterSet,
+            HelpMessage = "Output Type to return to the caller")]
+        public OutputType OutputType { get; set; } = OutputType.HashTable;
+
+        /// <summary>
         ///     Wait for .NET debugger to attach
         /// </summary>
         [Parameter(Mandatory = false,
@@ -416,60 +425,50 @@ namespace Microsoft.Graph.PowerShell.Authentication.Cmdlets
             return uri;
         }
 
+        private void ThrowIfError(ErrorRecord error)
+        {
+            if (error != null)
+            {
+                WriteError(error);
+            }
+        }
         /// <summary>
         ///     Process Http Response
         /// </summary>
         /// <param name="response"></param>
-        internal void ProcessResponse(HttpResponseMessage response)
+        internal async Task ProcessResponseAsync(HttpResponseMessage response)
         {
             if (response == null) throw new ArgumentNullException(nameof(response));
-
-            var baseResponseStream = response.GetResponseStream();
-
+            var responseString = await response.Content.ReadAsStringAsync();
             if (ShouldWriteToPipeline)
             {
-                using (var responseStream = new BufferingStreamReader(baseResponseStream))
+                ErrorRecord error = null;
+                switch (OutputType)
                 {
-                    // determine the response type
-                    var returnType = response.CheckReturnType();
-                    // Try to get the response encoding from the ContentType header.
-                    Encoding encoding = null;
-                    var charSet = response.Content.Headers.ContentType?.CharSet;
-                    if (!string.IsNullOrEmpty(charSet))
-                    {
-                        charSet.TryGetEncoding(out encoding);
-                    }
-
-                    if (string.IsNullOrEmpty(charSet) && returnType == RestReturnType.Json)
-                    {
-                        encoding = Encoding.UTF8;
-                    }
-
-                    Exception ex = null;
-
-                    var str = responseStream.DecodeStream(ref encoding);
-
-                    string encodingVerboseName;
-                    try
-                    {
-                        encodingVerboseName = string.IsNullOrEmpty(encoding.HeaderName)
-                            ? encoding.EncodingName
-                            : encoding.HeaderName;
-                    }
-                    catch (NotSupportedException)
-                    {
-                        encodingVerboseName = encoding.EncodingName;
-                    }
-
-                    // NOTE: Tests use this verbose output to verify the encoding.
-                    WriteVerbose(Resources.ContentEncodingVerboseMessage.FormatCurrentCulture(encodingVerboseName));
-                    WriteObject(str.TryConvertToJson(out var obj, ref ex) ? obj : str);
+                    case OutputType.HashTable:
+                        var hashTable = responseString.ConvertFromJson(true, null, out error);
+                        ThrowIfError(error);
+                        WriteObject(hashTable);
+                        break;
+                    case OutputType.PSObject:
+                        var psObject = responseString.ConvertFromJson(false, null, out error);
+                        ThrowIfError(error);
+                        WriteObject(psObject, true);
+                        break;
+                    case OutputType.HttpResponseMessage:
+                        WriteObject(response);
+                        break;
+                    case OutputType.Json:
+                        WriteObject(responseString);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
 
             if (ShouldSaveToOutFile)
             {
-                baseResponseStream.SaveStreamToFile(QualifiedOutFile, this, _cancellationTokenSource.Token);
+                response.GetResponseStream().SaveStreamToFile(QualifiedOutFile, this, _cancellationTokenSource.Token);
             }
 
             if (InferOutputFileName.IsPresent)
@@ -482,7 +481,7 @@ namespace Microsoft.Graph.PowerShell.Authentication.Cmdlets
                         var fullFileName = QualifyFilePath(fileName);
                         WriteVerbose(
                             Resources.InferredFileNameVerboseMessage.FormatCurrentCulture(fileName, fullFileName));
-                        baseResponseStream.SaveStreamToFile(fullFileName, this, _cancellationTokenSource.Token);
+                        response.GetResponseStream().SaveStreamToFile(fullFileName, this, _cancellationTokenSource.Token);
                     }
                 }
                 else
@@ -1117,7 +1116,7 @@ namespace Microsoft.Graph.PowerShell.Authentication.Cmdlets
                                             ThrowTerminatingError(httpErrorRecord);
                                         }
 
-                                        ProcessResponse(httpResponseMessage);
+                                        await ProcessResponseAsync(httpResponseMessage);
                                     }
                                 }
                                 catch (HttpRequestException ex)
