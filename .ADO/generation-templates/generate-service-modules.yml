@@ -46,7 +46,11 @@ jobs:
           targetType: inline
           pwsh: true
           script: |
-            . $(System.DefaultWorkingDirectory)/tools/GenerateAuthenticationModule.ps1 -ArtifactsLocation $(Build.ArtifactStagingDirectory) -Build -EnableSigning:${{ parameter.EnableSigning }} -BuildWhenEqual -RepositoryName "LocalNugetFeed"
+            Write-Host "Enable Signing"
+            Write-Host ${{ parameter.EnableSigning }}
+            [bool]$EnableSigning = ${{ parameter.EnableSigning }}
+            Write-Host $EnableSigning
+            . $(System.DefaultWorkingDirectory)/tools/GenerateAuthenticationModule.ps1 -ArtifactsLocation $(Build.ArtifactStagingDirectory) -Build -EnableSigning:$EnableSigning -BuildWhenEqual -RepositoryName "LocalNugetFeed"
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: ESRP DLL strong name (Auth Module)
@@ -129,8 +133,12 @@ jobs:
           targetType: inline
           pwsh: true
           script: |
+            Write-Host "Enable Signing"
+            Write-Host ${{ parameter.EnableSigning }}
+            [bool]$EnableSigning = ${{ parameter.EnableSigning }}
+            Write-Host $EnableSigning
             $Modules = "$(ModulesToGenerate)" -split " "
-            . $(System.DefaultWorkingDirectory)/tools/GenerateModules.ps1 -Build -Test -UpdateAutoRest -EnableSigning::${{ parameter.EnableSigning }} -ModulesToGenerate $Modules
+            . $(System.DefaultWorkingDirectory)/tools/GenerateModules.ps1 -Build -Test -UpdateAutoRest -EnableSigning:$EnableSigning -ModulesToGenerate $Modules
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: ESRP DLL strong name (Service Modules)
