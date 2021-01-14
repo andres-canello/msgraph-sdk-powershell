@@ -47,8 +47,8 @@ jobs:
           pwsh: true
           script: |
             Write-Host "Enable Signing"
-            Write-Host ${{ parameter.EnableSigning }}
-            [bool]$EnableSigning = ${{ parameter.EnableSigning }}
+            Write-Host $(EnableSigning)
+            [bool]$EnableSigning = $(EnableSigning)
             Write-Host $EnableSigning
             . $(System.DefaultWorkingDirectory)/tools/GenerateAuthenticationModule.ps1 -ArtifactsLocation $(Build.ArtifactStagingDirectory) -Build -EnableSigning:$EnableSigning -BuildWhenEqual -RepositoryName "LocalNugetFeed"
 
@@ -134,8 +134,8 @@ jobs:
           pwsh: true
           script: |
             Write-Host "Enable Signing"
-            Write-Host ${{ parameter.EnableSigning }}
-            [bool]$EnableSigning = ${{ parameter.EnableSigning }}
+            Write-Host $(EnableSigning)
+            [bool]$EnableSigning = $(EnableSigning)
             Write-Host $EnableSigning
             $Modules = "$(ModulesToGenerate)" -split " "
             . $(System.DefaultWorkingDirectory)/tools/GenerateModules.ps1 -Build -Test -UpdateAutoRest -EnableSigning:$EnableSigning -ModulesToGenerate $Modules

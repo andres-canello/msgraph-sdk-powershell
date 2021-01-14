@@ -12,7 +12,7 @@ trigger: none
 pr: none
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-  - cron: "35 23 * * *" # Test runs
+  - cron: "47 23 * * *" # Test runs
     displayName: "Weekly PS SDK generation"
     branches:
       include:
@@ -40,12 +40,12 @@ stages:
     jobs:
       - template: generation-templates/generate-service-modules.yml
         parameters:
-          Branch: $(Branch)
-          AuthModulePath: $(AuthModulePath)
-          AuthModuleDllPattern: $(AuthModuleDllPattern)
-          ServiceModulePath: $(ServiceModulePath)
-          ModulePrefix: $(ModulePrefix)
-          EnableSigning: false
+          # Branch: $(Branch)
+          # AuthModulePath: $(AuthModulePath)
+          # AuthModuleDllPattern: $(AuthModuleDllPattern)
+          # ServiceModulePath: $(ServiceModulePath)
+          # ModulePrefix: $(ModulePrefix)
+          EnableSigning: true
           PublishToFeed: false
   # Git diff on download OpenAPI docs. Store changed modules in a variable.
   # Commit downloaded docs.
