@@ -50,7 +50,7 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: ESRP DLL strong name (Auth Module)
-        enabled: $(EnableSigning)
+        condition: and(succeeded(), eq('${{ parameters.EnableSigning }}', true))
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: $(AuthModulePath)
@@ -77,7 +77,7 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP DLL code sign (Auth Module)"
-        enabled: $(EnableSigning)
+        condition: and(succeeded(), eq('${{ parameters.EnableSigning }}', true))
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: $(AuthModulePath)
@@ -134,7 +134,7 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: ESRP DLL strong name (Service Modules)
-        enabled: $(EnableSigning)
+        condition: and(succeeded(), eq('${{ parameters.EnableSigning }}', true))
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: $(ServiceModulePath)
@@ -161,7 +161,7 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP DLL code sign (Service Modules)"
-        enabled: $(EnableSigning)
+        condition: and(succeeded(), eq('${{ parameters.EnableSigning }}', true))
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: $(ServiceModulePath)
@@ -223,7 +223,7 @@ jobs:
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: ESRP NuGet code sign (Service Modules)
-        enabled: $(EnableSigning)
+        condition: and(succeeded(), eq('${{ parameters.EnableSigning }}', true))
         inputs:
           ConnectedServiceName: "microsoftgraph ESRP CodeSign DLL and NuGet (AKV)"
           FolderPath: '$(Build.ArtifactStagingDirectory)\'
@@ -257,7 +257,7 @@ jobs:
 
       - task: NuGetCommand@2
         displayName: Publish NuGet to local build feed
-        enabled: $(PublishToFeed)
+        condition: and(succeeded(), eq('${{ parameters.PublishToFeed }}', true))
         inputs:
           command: push
           packagesToPush: "$(Build.ArtifactStagingDirectory)/**/Microsoft.Graph.*.nupkg"
