@@ -6,12 +6,12 @@ pool: MsGraphDevXAzureAgents
 
 variables:
   Branch: "testweeklyOpenApiDocsDownload"
-  BaseBranch: "dev"
+  BaseBranch: "po/WeeklyReleasePipeline"
 trigger: none
 pr: none
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-  - cron: "43 18 * * *" # Test runs
+  - cron: "50 18 * * *" # Test runs
     displayName: "Weekly PS SDK generation"
     branches:
       include:
