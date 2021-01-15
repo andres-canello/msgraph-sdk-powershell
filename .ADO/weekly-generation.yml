@@ -12,7 +12,7 @@ trigger: none
 pr: none
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-  - cron: "27 17 * * *" # Test runs
+  - cron: "55 17 * * *" # Test runs
     displayName: "Weekly PS SDK generation"
     branches:
       include:
@@ -31,23 +31,18 @@ stages:
 
   - stage: GenerateServiceModules
     displayName: Generate service modules
-    variables:
-      ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
-      AuthModulePath: "src/Authentication/Authentication/bin/"
-      AuthModuleDllPattern: "Microsoft.Graph.Authentication.dll"
-      ServiceModulePath: "src/"
-      ModulePrefix: "Microsoft.Graph"
-      # EnableSigning: true
-      # PublishToFeed: false
+    # variables:
+    #   ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
     jobs:
       - template: generation-templates/generate-service-modules.yml
         parameters:
+          ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
           Branch: $(Branch)
-          AuthModulePath: $(AuthModulePath)
-          AuthModuleDllPattern: $(AuthModuleDllPattern)
-          ServiceModulePath: $(ServiceModulePath)
-          ModulePrefix: $(ModulePrefix)
-          EnableSigning: true
+          AuthModulePath: "src/Authentication/Authentication/bin/"
+          AuthModuleDllPattern: "Microsoft.Graph.Authentication.dll"
+          ServiceModulePath: "src/"
+          ModulePrefix: "Microsoft.Graph"
+          EnableSigning: false
           PublishToFeed: false
   # Git diff on download OpenAPI docs. Store changed modules in a variable.
   # Commit downloaded docs.

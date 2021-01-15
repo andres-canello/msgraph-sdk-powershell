@@ -2,6 +2,8 @@
 # Licensed under the MIT License.
 
 parameters:
+  - name: ModulesToGenerate
+    type: string
   - name: AuthModulePath
     type: string
   - name: AuthModuleDllPattern
@@ -25,6 +27,11 @@ jobs:
     timeoutInMinutes: 360
     condition: and(succeeded(), ne(stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'], ''))
     variables:
+      ModulesToGenerate: ${{ parameters.ModulesToGenerate }}
+      AuthModulePath: ${{ parameters.AuthModulePath }}
+      AuthModuleDllPattern: ${{ parameters.AuthModuleDllPattern }}
+      ServiceModulePath: ${{ parameters.ServiceModulePath }}
+      ModulePrefix: ${{ parameters.ModulePrefix }}
       EnableSigning: ${{ parameters.EnableSigning }}
       PublishToFeed: ${{ parameters.PublishToFeed }}
     steps:
