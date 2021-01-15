@@ -5,14 +5,13 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 pool: MsGraphDevXAzureAgents
 
 variables:
-  BranchDate: "$[format('{0:yyyyMMddHHmm}', pipeline.startTime)]"
-  Branch: "testweeklyOpenApiDocsDownload/$(BranchDate)"
+  Branch: "testweeklyOpenApiDocsDownload"
   BaseBranch: "dev"
 trigger: none
 pr: none
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-  - cron: "55 17 * * *" # Test runs
+  - cron: "30 18 * * *" # Test runs
     displayName: "Weekly PS SDK generation"
     branches:
       include:
@@ -31,13 +30,11 @@ stages:
 
   - stage: GenerateServiceModules
     displayName: Generate service modules
-    # variables:
-    #   ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
     jobs:
       - template: generation-templates/generate-service-modules.yml
         parameters:
           ModulesToGenerate: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'] ]
-          Branch: $(Branch)
+          Branch: $[ stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['ComputeBranch.WeeklyBranch'] ]
           AuthModulePath: "src/Authentication/Authentication/bin/"
           AuthModuleDllPattern: "Microsoft.Graph.Authentication.dll"
           ServiceModulePath: "src/"

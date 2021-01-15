@@ -19,9 +19,31 @@ jobs:
       - template: ./install-tools.yml
 
       - task: PowerShell@2
+        name: "ComputeBranch"
+        displayName: "Compute weekly branch name"
+        inputs:
+          targetType: inline
+          script: |
+            $branch = "{0}/{1}" -f "$(Branch)", (Get-Date -Format yyyyMMddHHmm)
+            Write-Host "##vso[task.setvariable variable=WeeklyBranch;isOutput=true]$branch"
+
+      - task: Bash@3
+        displayName: "Create weekly branch: $(ComputeBranch.WeeklyBranch)"
+        condition: and(succeeded())
+        inputs:
+          targetType: inline
+          script: |
+            git status
+            git fetch --all
+            git checkout $(BaseBranch)
+            git branch $(ComputeBranch.WeeklyBranch)
+            git checkout $(ComputeBranch.WeeklyBranch)
+            git status
+
+      - task: PowerShell@2
         displayName: Download v1.0 OpenApi docs
-        enabled: false
         continueOnError: false
+        enabled: false
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           pwsh: true
@@ -59,9 +81,9 @@ jobs:
 
       - task: PowerShell@2
         displayName: Generate profiles
-        enabled: false
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         continueOnError: false
+        enabled: false
         inputs:
           targetType: filePath
           pwsh: true
@@ -103,19 +125,6 @@ jobs:
             . "$(System.DefaultWorkingDirectory)\tools\WriteToModuleReadMe.ps1" -ReadMePath $NewModuleReadMePath -FieldName "module-version" -NewFieldValue $NewMetaModuleVersion
 
       - task: Bash@3
-        displayName: "Create weekly branch: $(Branch)"
-        condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
-        inputs:
-          targetType: inline
-          script: |
-            git status
-            git fetch --all
-            git checkout $(BaseBranch)
-            git branch $(Branch)
-            git checkout $(Branch)
-            git status
-
-      - task: Bash@3
         displayName: Commit downloaded files
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         env:
@@ -127,7 +136,7 @@ jobs:
             git add .
             git commit -m 'Weekly OpenApiDocs Download'
             git status
-            git push --set-upstream origin $(Branch)
+            git push --set-upstream origin $(ComputeBranch.WeeklyBranch)
             git status
 
 # References
