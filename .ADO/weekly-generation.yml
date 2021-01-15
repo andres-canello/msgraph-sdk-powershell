@@ -12,7 +12,7 @@ trigger: none
 pr: none
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-  - cron: "40 0 * * *" # Test runs
+  - cron: "45 0 * * *" # Test runs
     displayName: "Weekly PS SDK generation"
     branches:
       include:
@@ -37,16 +37,18 @@ stages:
       AuthModuleDllPattern: "Microsoft.Graph.Authentication.dll"
       ServiceModulePath: "src/"
       ModulePrefix: "Microsoft.Graph"
+      EnableSigning: false
+      PublishToFeed: false
     jobs:
       - template: generation-templates/generate-service-modules.yml
         parameters:
-          # Branch: $(Branch)
-          # AuthModulePath: $(AuthModulePath)
-          # AuthModuleDllPattern: $(AuthModuleDllPattern)
-          # ServiceModulePath: $(ServiceModulePath)
-          # ModulePrefix: $(ModulePrefix)
-          EnableSigning: true
-          PublishToFeed: false
+          Branch: $(Branch)
+          AuthModulePath: $(AuthModulePath)
+          AuthModuleDllPattern: $(AuthModuleDllPattern)
+          ServiceModulePath: $(ServiceModulePath)
+          ModulePrefix: $(ModulePrefix)
+          EnableSigning: $(EnableSigning)
+          PublishToFeed: $(PublishToFeed)
   # Git diff on download OpenAPI docs. Store changed modules in a variable.
   # Commit downloaded docs.
   # If modules change, bump their minor and meta-module version.
