@@ -29,7 +29,6 @@ jobs:
 
       - task: Bash@3
         displayName: "Create weekly branch: $(ComputeBranch.WeeklyBranch)"
-        condition: and(succeeded())
         inputs:
           targetType: inline
           script: |
