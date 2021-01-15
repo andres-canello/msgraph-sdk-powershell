@@ -40,7 +40,6 @@ jobs:
 
       - task: Bash@3
         displayName: "Switch branch to $(Branch)"
-        condition: and(succeeded(), ne('${{ parameters.Branch }}', ''))
         inputs:
           targetType: inline
           script: |
