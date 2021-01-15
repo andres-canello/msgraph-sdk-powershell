@@ -24,6 +24,9 @@ jobs:
     pool: MsGraphDevXAzureAgents
     timeoutInMinutes: 360
     condition: and(succeeded(), ne(stageDependencies.DownloadOpenAPIDocs.GetLatestDocs.outputs['OpenAPIDocDiff.ModulesWithChanges'], ''))
+    variables:
+      EnableSigning: ${{ parameters.EnableSigning }}
+      PublishToFeed: ${{ parameters.PublishToFeed }}
     steps:
       - template: ../common-templates/install-tools.yml
 
@@ -48,7 +51,7 @@ jobs:
           script: |
             Write-Host "Enable Signing"
             Write-Host $(EnableSigning)
-            [bool]$EnableSigning = if ($(EnableSigning) -eq "true") { $true } else { $false }
+            [bool]$EnableSigning = if ("$(EnableSigning)" -eq "true") { $true } else { $false }
             Write-Host $EnableSigning
             . $(System.DefaultWorkingDirectory)/tools/GenerateAuthenticationModule.ps1 -ArtifactsLocation $(Build.ArtifactStagingDirectory) -Build -EnableSigning:$EnableSigning -BuildWhenEqual -RepositoryName "LocalNugetFeed"
 
@@ -135,7 +138,7 @@ jobs:
           script: |
             Write-Host "Enable Signing"
             Write-Host $(EnableSigning)
-            [bool]$EnableSigning = if ($(EnableSigning) -eq "true") { $true } else { $false }
+            [bool]$EnableSigning = if ("$(EnableSigning)" -eq "true") { $true } else { $false }
             Write-Host $EnableSigning
             $Modules = "$(ModulesToGenerate)" -split " "
             . $(System.DefaultWorkingDirectory)/tools/GenerateModules.ps1 -Build -Test -UpdateAutoRest -EnableSigning:$EnableSigning -ModulesToGenerate $Modules

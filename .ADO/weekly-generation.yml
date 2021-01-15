@@ -12,7 +12,7 @@ trigger: none
 pr: none
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-  - cron: "58 16 * * *" # Test runs
+  - cron: "27 17 * * *" # Test runs
     displayName: "Weekly PS SDK generation"
     branches:
       include:
@@ -37,8 +37,8 @@ stages:
       AuthModuleDllPattern: "Microsoft.Graph.Authentication.dll"
       ServiceModulePath: "src/"
       ModulePrefix: "Microsoft.Graph"
-      EnableSigning: true
-      PublishToFeed: false
+      # EnableSigning: true
+      # PublishToFeed: false
     jobs:
       - template: generation-templates/generate-service-modules.yml
         parameters:
