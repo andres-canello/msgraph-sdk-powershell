@@ -28,7 +28,7 @@ jobs:
             Write-Host "##vso[task.setvariable variable=WeeklyBranch;isOutput=true]$branch"
 
       - task: Bash@3
-        displayName: "Create weekly branch: $(ComputeBranch.WeeklyBranch)"
+        displayName: "Create weekly branch"
         inputs:
           targetType: inline
           script: |
@@ -42,7 +42,6 @@ jobs:
       - task: PowerShell@2
         displayName: Download v1.0 OpenApi docs
         continueOnError: false
-        enabled: false
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           pwsh: true
@@ -50,7 +49,6 @@ jobs:
       - task: PowerShell@2
         displayName: Download beta OpenApi docs
         continueOnError: false
-        enabled: false
         inputs:
           filePath: "$(System.DefaultWorkingDirectory)/tools/UpdateOpenApi.ps1"
           arguments: "-BetaGraphVersion"
@@ -82,7 +80,6 @@ jobs:
         displayName: Generate profiles
         condition: and(succeeded(), ne(variables['OpenAPIDocDiff.ModulesWithChanges'], ''))
         continueOnError: false
-        enabled: false
         inputs:
           targetType: filePath
           pwsh: true
