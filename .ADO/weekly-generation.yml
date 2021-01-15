@@ -12,7 +12,7 @@ trigger: none
 pr: none
 schedules:
   # - cron: "0 12 * * WED" # Run every wednesday at noon UTC
-  - cron: "38 1 * * *" # Test runs
+  - cron: "58 16 * * *" # Test runs
     displayName: "Weekly PS SDK generation"
     branches:
       include:
@@ -37,7 +37,7 @@ stages:
       AuthModuleDllPattern: "Microsoft.Graph.Authentication.dll"
       ServiceModulePath: "src/"
       ModulePrefix: "Microsoft.Graph"
-      EnableSigning: false
+      EnableSigning: true
       PublishToFeed: false
     jobs:
       - template: generation-templates/generate-service-modules.yml
@@ -47,7 +47,7 @@ stages:
           AuthModuleDllPattern: $(AuthModuleDllPattern)
           ServiceModulePath: $(ServiceModulePath)
           ModulePrefix: $(ModulePrefix)
-          EnableSigning: false
+          EnableSigning: true
           PublishToFeed: false
   # Git diff on download OpenAPI docs. Store changed modules in a variable.
   # Commit downloaded docs.
